@@ -1,25 +1,39 @@
-// signupValidation.js
-import { body } from "express-validator";
+import { check } from "express-validator";
 
-const signupValidation = [
-  // Email validation: not empty and must be a valid email
-  body("email")
+const signupValidator = [
+  check("username")
     .notEmpty()
-    .withMessage("Email is required") // Check if email is not empty
-    .bail() // If email is not empty, proceed to the next validation
+    .withMessage("Username is required")
+    .bail()
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters"),
+
+  check("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .bail()
     .isEmail()
-    .withMessage("Enter a valid email"), // Check if email is valid
+    .withMessage("Enter a valid email"),
 
-  // Password validation: not empty and must have a minimum length of 6 characters
-  body("password")
+  check("password")
     .notEmpty()
-    .withMessage("Password is required") // Check if password is not empty
-    .bail() // If password is not empty, proceed to the next validation
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"), // Check password length
-
-  // Name validation: not empty
-  body("name").notEmpty().withMessage("Name is required"), // Check if name is not empty
+    .withMessage("Password is required")
+    .bail()
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long")
+    .bail()
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .withMessage(
+      "Password must include uppercase, lowercase, number, and special character"
+    )
+    .custom((value, { req }) => {
+      if (value === req.body.username) {
+        throw new Error("Username and password cannot be the same");
+      }
+      return true;
+    }),
 ];
 
-export default signupValidation;
+export default signupValidator;

@@ -2,10 +2,10 @@ import express from "express";
 import validationHandler from "../middlewares/validationHandler.js";
 import signupValidation from "../validation/signUp.js";
 
-import { signout, login, signup } from "../controllers/auth.controller.js";
+import { signout, signin, signup } from "../controllers/auth.controller.js";
 const router = express.Router();
 
-router.post("/login", login);
+router.post("/signin", signin);
 router.post("/signUp", signupValidation, validationHandler, signup);
 router.get("/signout", signout);
 
