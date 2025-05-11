@@ -1,6 +1,6 @@
 import { check } from "express-validator";
 
-const signupValidator = [
+const signupValidation = [
   check("username")
     .notEmpty()
     .withMessage("Username is required")
@@ -36,4 +36,4 @@ const signupValidator = [
     }),
 ];
 
-export default signupValidator;
+export default signupValidation;
