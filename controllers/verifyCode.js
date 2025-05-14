@@ -1,6 +1,6 @@
 import tempUser from "../models/TempUser.model.js";
 import User from "../models/user.model.js";
-import jwt from "jsonwebtoken";
+import { accessToken, refreshToken } from "../utils/token.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -21,17 +21,26 @@ async function verifyCode(req, res) {
     };
     const newUser = await User.create({ newDoc });
     tempUser.deleteOne({ email });
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.cookie("token", token, {
+    const access_Token = accessToken({ id: existingUser._id });
+    const refresh_Token = refreshToken({ id: existingUser._id });
+    res.cookie("access_token", access_Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 60 * 60 * 1000,
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+    res.cookie("refresh_token", refresh_Token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.status(201).json({
       meessage: "User successfully Created",
+      user: {
+        email: newUser.email,
+        username: newUser.username,
+      },
     });
   } catch (error) {
     console.error("error creating user", error.meessage);
